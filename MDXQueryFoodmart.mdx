@@ -1,0 +1,122 @@
+﻿	-- Doanh thu theo tháng trong năm 
+WITH 
+ MEMBER [Measures].[Revenue This Month] AS 
+   [Measures].[Revenue]
+SELECT
+  { [Measures].[Revenue This Month] } ON COLUMNS,
+  [Dim Time].[Month].[Month].Members ON ROWS
+FROM [Foodmart]
+WHERE ( [Dim Time].[Year].&[1997])
+
+-- Tăng trưởng doanh thu YoY (Year-over-Year)
+WITH
+ MEMBER [Measures].[Revenue Current Year]  AS [Measures].[Revenue]
+ MEMBER [Measures].[Revenue Prior Year]    AS (
+     [Dim Time].[Year].CurrentMember.PrevMember,
+     [Measures].[Revenue]
+   )
+ MEMBER [Measures].[YoY Growth %] AS 
+   IIF(
+     [Measures].[Revenue Prior Year] = 0,
+     NULL,
+     ([Measures].[Revenue Current Year] - [Measures].[Revenue Prior Year])
+     / [Measures].[Revenue Prior Year]
+   )
+SELECT
+  { 
+    [Measures].[Revenue Current Year],
+    [Measures].[Revenue Prior Year],
+    [Measures].[YoY Growth %]
+  } ON COLUMNS,
+  [Dim Time].[Year].Members ON ROWS
+FROM [Foodmart]
+-- Top 10 sản phẩm theo doanh thu theo năm
+SELECT
+    TOPCOUNT(
+        [Dim Product].[Product Name].Members,
+        10,
+        ([Measures].[Revenue])
+    ) ON ROWS,
+
+    {[Measures].[Revenue]} ON COLUMNS
+
+FROM [Foodmart]
+
+WHERE ([Dim Time].[Year].[1997])
+
+-- Tỷ lệ trả hàng (Return Rate) theo sản phẩm
+WITH 
+MEMBER [Measures].[Return Rate] AS
+    ([Measures].[Quantity Return]) / ([Measures].[Quantity]) * 100
+
+SELECT
+    [Dim Product].[Product Name].Members ON ROWS,
+
+    {
+        [Measures].[Quantity],
+        [Measures].[Quantity Return] as [Return Quantity],
+        [Measures].[Return Rate]
+    } ON COLUMNS
+
+FROM [Foodmart]
+-- WHERE ([Dim Time].[Year].&[1998])
+
+-- Hiệu suất cửa hàng: Doanh thu trên mét vuông
+WITH MEMBER [Measures].[Revenue Per Sqft] AS
+    [Measures].[Revenue] / [Dim Store].[Store Id].CurrentMember.Properties("Total Sqft")
+SELECT
+    {[Measures].[Revenue], [Measures].[Revenue Per Sqft]} ON COLUMNS,
+    [Dim Store].[Store Id].Members ON ROWS
+FROM
+    [Foodmart]
+
+-- Phân tích khách hàng: Doanh thu theo nhóm giới tính
+SELECT
+  { [Measures].[Revenue] } ON COLUMNS,
+  [Dim Customer].[Gender].Members ON ROWS
+FROM [Foodmart]
+WHERE ( [Dim Time].[Year].&[1998] )
+-- . Tổng doanh thu theo cửa hàng (store)
+SELECT 
+	[Dim Store].[Store Name].MEMBERS ON ROWS,
+    [Measures].[Revenue] ON COLUMNS
+FROM [Foodmart]
+
+--Doanh thu theo năm và loại sản phẩm
+SELECT 
+    NON EMPTY CROSSJOIN(
+        [Dim Time].[Year].MEMBERS,
+        [Dim Product].[Product Brand].MEMBERS
+    ) ON ROWS,
+    [Measures].[Revenue] ON COLUMNS
+FROM [Foodmart]
+-- 10 cửa hàng có doanh thu thấp nhất	
+SELECT 
+    BOTTOMCOUNT(
+        [Dim Store].[Store Name].[Store Name].MEMBERS,
+        10,
+        [Measures].[Revenue]
+    ) ON ROWS,
+    [Measures].[Revenue] ON COLUMNS
+FROM [Foodmart]
+-- Doanh thu, chi phí và lợi nhuận theo sản phẩm
+SELECT 
+    {[Measures].[Revenue], [Measures].[Cost], [Measures].[Gross Profit]} ON COLUMNS,
+    [Dim Product].[Product Name].[Product Name].MEMBERS ON ROWS
+FROM [Foodmart]
+-- Top 10 sản phẩm có doanh thu thấp nhất 
+SELECT
+    BOTTOMCOUNT(
+        [Dim Product].[Product Name].Members,
+        10,
+        ([Measures].[Total Revenue])
+    ) ON ROWS,
+
+    {[Measures].[Total Revenue]} ON COLUMNS
+
+FROM [Foodmart]
+
+WHERE ([Dim Time].[Year].[1997])
+
+
+

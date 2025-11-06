@@ -1,0 +1,12 @@
+﻿<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="WINDOWS-11_DINHHOADEV.foodmart"
+  DTS:DTSID="{993DE79B-43A2-47B4-BEF3-A94164AFA5C1}"
+  DTS:CreationName="OLEDB">
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=WINDOWS-11\DINHHOADEV;Initial Catalog=foodmart;Provider=SQLOLEDB.1;Integrated Security=SSPI;Application Name=SSIS-foodmart-{993DE79B-43A2-47B4-BEF3-A94164AFA5C1}WINDOWS-11\DINHHOADEV.foodmart;Auto Translate=False;" />
+  </DTS:ObjectData>
+</DTS:ConnectionManager>
